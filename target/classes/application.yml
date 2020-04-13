@@ -1,0 +1,113 @@
+server:
+  port: 8090
+  
+model:
+  path: E:/ExcelModel/ExcelModelTest.xlsx
+
+spring:
+    devtools:
+      restart:
+        enabled: true  #设置开启热部署
+        additional-paths: src/main/java #重启目录
+        exclude: WEB-INF/**
+    freemarker:
+      cache: false    #页面不加载缓存，修改即时生效
+      
+    # Redis数据库索引（默认为0）  
+    redis:
+      database: 0  
+      # Redis服务器地址  
+      host: localhost
+      # Redis服务器连接端口  
+      port: 6379  
+      # Redis服务器连接密码（默认为空）  
+      password:   
+      # 连接池最大连接数（使用负值表示没有限制）  
+      max-active: 200
+      # 连接池最大阻塞等待时间（使用负值表示没有限制）  
+      max-wait: -1  
+      # 连接池中的最大空闲连接  
+      max-idle: 10 
+      # 连接池中的最小空闲连接  
+      min-idle: 0  
+      # 连接超时时间（毫秒）  
+      timeout: 30000 
+    # 配置JSP
+    mvc:
+      view:
+        # 配置JSP文件位置，默认位置为：src/main/webapp
+        prefix: /WEB-INF/jsp/
+        # 配置JSP文件后缀
+        suffix: .jsp
+        # 配置JSP视图名
+        view-names: '*'
+  
+    # 配置html
+    thymeleaf:
+      # 配置渲染文件的位置，默认位置为：classpath:/templates
+      prefix: classpath:/templates/
+      # 开发时关闭缓存，不然没法看到实时页面
+      cache: false
+      # 配置渲染文件的后缀
+      suffix: .html
+      view-names: /*
+    servlet:
+      multipart:
+        max-request-size: 10MB
+        max-file-size: 10MB
+   
+
+    datasource:
+        name: mysql_test
+        type: com.alibaba.druid.pool.DruidDataSource
+        #druid相关配置
+        druid:
+          #监控统计拦截的filters
+          filters: stat
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          #基本属性
+#          url: jdbc:mysql://127.0.0.1:3306/mytest?serverTimezone=UTC&useUnicode=true&characterEncoding=GBK&allowMultiQueries=true
+          url: jdbc:mysql://localhost:3306/mytest?characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
+          username: root
+          password: root
+          #配置初始化大小/最小/最大
+          initial-size: 1
+          min-idle: 1
+          max-active: 20
+          #获取连接等待超时时间
+          max-wait: 60000
+          #间隔多久进行一次检测，检测需要关闭的空闲连接
+          time-between-eviction-runs-millis: 60000
+          #一个连接在池中最小生存的时间
+          min-evictable-idle-time-millis: 300000
+          validation-query: SELECT 'x'
+          test-while-idle: true
+          test-on-borrow: false
+          test-on-return: false
+          #打开PSCache，并指定每个连接上PSCache的大小。oracle设为true，mysql设为false。分库分表较多推荐设置为false
+          pool-prepared-statements: false
+          max-pool-prepared-statement-per-connection-size: 20
+          
+#输出sql语句到日志
+#mybatis:
+#  mapper-locations: classpath:mapper/*.xml
+#  type-aliases-package: com.chinaBank.bean
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl 
+
+#pagehelper
+pagehelper:
+    helperDialect: mysql
+    reasonable: true
+    supportMethodsArguments: true
+    params: count=countSql
+    returnPageInfo: check
+    
+#logging:
+#   file: D:log4j/log.log
+#   pattern:    
+#     file: "%d{yyyy/MM/dd-HH:mm} [%thread] %-5level %logger- %msg%n"
+#     console: "%d{yyyy/MM/dd-HH:mm:ss} [%thread] %-5level %logger- %msg%n"
+
+#logging:
+#   config: classpath:logback-spring.xml

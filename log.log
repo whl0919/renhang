@@ -1,0 +1,14 @@
+2019/10/17-15:26 [main] INFO  com.winterchen.SpringBootStart- Starting SpringBootStart on DESKTOP-NQ54PRN with PID 1248 (F:\renhang\workspace\CHINA-BANK-1.1.0\target\classes started by newWindows in F:\renhang\workspace\CHINA-BANK-1.1.0)
+2019/10/17-15:26 [main] INFO  com.winterchen.SpringBootStart- No active profile set, falling back to default profiles: default
+2019/10/17-15:26 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer- Tomcat initialized with port(s): 8080 (http)
+2019/10/17-15:26 [main] INFO  org.apache.catalina.core.StandardService- Starting service [Tomcat]
+2019/10/17-15:26 [main] INFO  org.apache.catalina.core.StandardEngine- Starting Servlet engine: [Apache Tomcat/9.0.24]
+2019/10/17-15:26 [main] INFO  org.apache.jasper.servlet.TldScanner- At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2019/10/17-15:26 [main] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/]- Initializing Spring embedded WebApplicationContext
+2019/10/17-15:26 [main] INFO  org.springframework.web.context.ContextLoader- Root WebApplicationContext: initialization completed in 2085 ms
+2019/10/17-15:26 [main] INFO  com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure- Init DruidDataSource
+2019/10/17-15:26 [main] INFO  com.alibaba.druid.pool.DruidDataSource- {dataSource-1} inited
+2019/10/17-15:26 [main] INFO  org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor- Initializing ExecutorService 'applicationTaskExecutor'
+2019/10/17-15:26 [main] INFO  org.springframework.boot.autoconfigure.web.servlet.WelcomePageHandlerMapping- Adding welcome page template: index
+2019/10/17-15:26 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer- Tomcat started on port(s): 8080 (http) with context path ''
+2019/10/17-15:26 [main] INFO  com.winterchen.SpringBootStart- Started SpringBootStart in 3.866 seconds (JVM running for 4.29)

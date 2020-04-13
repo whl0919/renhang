@@ -1,0 +1,878 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinaBank.mapper.SysSetingMapper" >
+
+  <!-- 部门维护start -->
+  <sql id="BASE_DEPT_TABLE">
+    dis_dept
+  </sql>
+
+  <sql id="BASE_DEPT_COLUMN">
+    id,dept_name,superior_dept_name,dept_status,create_user,create_date
+  </sql>
+
+  <insert id="addDept" parameterType="com.chinaBank.bean.SysSeting.DeptData">
+    INSERT INTO dis_dept
+      (id,
+      dept_name,
+      dept_status,
+      superior_dept_name,
+      create_user,
+      create_date
+      )
+      values
+      (uuid(),
+      #{dept_name},
+      #{dept_status},
+      #{superior_dept_name},
+      #{create_user},
+      now()
+      )
+  </insert>
+  
+  <update id="updateDept" parameterType="com.chinaBank.bean.SysSeting.DeptData">
+    update
+      dis_dept
+  set dept_name = #{dept_name},
+      dept_status = #{dept_status},
+      superior_dept_name = #{superior_dept_name}
+      where id = #{id}
+  </update>
+
+  <delete id="deleteDept" parameterType="com.chinaBank.bean.SysSeting.DeptData">
+    delete from 
+      dis_dept
+      where id = #{id}
+  </delete>
+  
+  <select id="selectSeptByName" resultType="com.chinaBank.bean.SysSeting.DeptData" parameterType="String">
+      SELECT
+        <include refid="BASE_DEPT_COLUMN"/>
+      FROM
+       dis_dept 
+     where dept_name = #{dept_name}
+  </select>
+  
+  <select id="selectSeptById" resultType="com.chinaBank.bean.SysSeting.DeptData" parameterType="String">
+      SELECT
+        <include refid="BASE_DEPT_COLUMN"/>
+      FROM
+       dis_dept 
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="id != null and  id != ''">
+          and id = #{id}
+        </if>
+	</trim> 
+  </select>
+  
+  <select id="findDeptTotal" resultType="com.chinaBank.bean.SysSeting.DeptData" parameterType="String">
+      SELECT
+        <include refid="BASE_DEPT_COLUMN"/>
+      FROM
+       dis_dept 
+  </select>
+  
+  <select id="selectSept" resultType="com.chinaBank.bean.SysSeting.DeptData">
+      SELECT
+        <include refid="BASE_DEPT_COLUMN"/>
+      FROM
+       dis_dept 
+	   <trim prefix="where" prefixOverrides="and |or ">
+	        <if test="dept_name != null and  dept_name != ''">
+	          and dept_name like CONCAT('%',#{dept_name},'%')
+	        </if>
+	        <if test="dept_status != null and  dept_status != ''">
+	          and dept_status = #{dept_status}
+	        </if>
+	        <if test="superior_dept_name != null and superior_dept_name != ''">
+	          and superior_dept_name = #{superior_dept_name}
+	        </if>
+		</trim>
+  </select>
+  <!-- 部门维护end -->
+  
+    <!-- 查询当前用户及所有下属机构start -->
+  <select id="selectOrgByBelongpbc" resultType="com.chinaBank.bean.SysSeting.AreaData" parameterType="String">
+      SELECT
+	      BANKCODE value,
+	      BANK label,
+	      '' children
+      FROM
+       dis_org
+ where BELONGPBC = #{belongpbc}
+  </select>
+    <!-- 查询当前用户及所有下属机构end -->
+
+  <!-- 用户信息维护start -->
+
+  <insert id="addUser" parameterType="com.chinaBank.bean.SysSeting.UserData">
+    INSERT INTO dis_user
+      (id,
+      user_id,
+      user_name,
+      org_id,
+      role_id,
+      user_psd,
+      user_type,
+      dept_id ,
+      user_status,
+      create_user,
+	  create_date,
+	  update_user,
+      update_date
+      )
+      values
+      ( uuid(),
+      #{user_id},
+      #{user_name},
+      #{org_id},
+      #{role_id},
+      #{user_psd},
+      #{user_type},
+      #{dept_id} ,
+      #{user_status},
+      #{create_user},
+      now(),
+      '',
+      now()
+      )
+  </insert>
+  
+  <update id="updateUserPsd" parameterType="String">
+    update
+      dis_user
+    set
+       user_psd = #{user_psd}
+      where id = #{id}
+  </update>
+  
+  <update id="updateUser" parameterType="com.chinaBank.bean.SysSeting.UserData">
+    update
+      dis_user
+    set
+       user_id = #{user_id},
+       user_name = #{user_name},
+       org_id = #{org_id},
+       role_id = #{role_id},
+       user_type = #{user_type},
+       user_status = #{user_status},
+       dept_id = #{dept_id},
+       update_user = #{update_user},
+       update_date = now()
+      where id = #{id}
+  </update>
+  
+  <select id="selectUserById" resultType="com.chinaBank.bean.SysSeting.UserData" parameterType="String">
+     SELECT
+      u.id,
+      u.user_id,
+      u.user_name,
+      u.org_id,
+      o.BANK org_name,
+      u.role_id,
+      u.user_psd,
+      u.user_type,
+      u.user_status,
+      u.dept_id,
+      d.dept_name dept_name
+     FROM
+       dis_user u LEFT JOIN dis_org o on u.org_id = o.BANKCODE
+                  LEFT JOIN dis_dept d on u.dept_id = d.id
+        where u.id = #{id}
+        and u.user_id != 'developer'
+  </select>
+  
+  <select id="selectUserByUserId" resultType="com.chinaBank.bean.SysSeting.UserData" parameterType="Map">
+     SELECT
+      u.id,
+      u.user_id,
+      u.user_name,
+      u.org_id,
+      o.BANK org_name,
+      u.role_id,
+      u.user_psd,
+      u.user_type,
+      u.user_status,
+      u.dept_id,
+      d.dept_name dept_name,
+      r.role_name
+     FROM
+       dis_user u LEFT JOIN dis_org o on u.org_id = o.BANKCODE
+                  LEFT JOIN dis_dept d on u.dept_id = d.id
+                  left join dis_role r on r.role_id = u.role_id
+      <trim prefix="where" prefixOverrides="and |or ">       
+	      <if test="user_id != null and  user_id != ''">
+	          and  u.user_id = #{user_id}
+	       </if>
+	       <if test="user_psd != null and  user_psd != ''">
+	          and u.user_psd = #{user_psd}
+	       </if>
+       </trim>
+  </select>
+    <!--  
+  <select id="selectUserByOrgId" resultType="com.chinaBank.bean.SysSeting.UserData" parameterType="String">
+     SELECT
+      u.id,
+      u.user_id,
+      u.user_name,
+      u.org_id,
+      o.BANK org_name,
+      u.role_id,
+      u.user_psd,
+      u.user_type,
+      u.user_status,
+      u.dept_id,
+      d.dept_name dept_name
+     FROM
+       dis_user u LEFT JOIN dis_org o on u.org_id = o.BANKCODE
+                  LEFT JOIN dis_dept d on u.dept_id = d.id
+	where u.org_id = #{org_id}
+  </select>
+  
+
+  <select id="selectUserByOrg" resultType="com.chinaBank.bean.SysSeting.UserData" parameterType="String">
+     SELECT
+      u.id,
+      u.user_id,
+      u.user_name,
+      u.org_id,
+      o.BANK org_name,
+      u.role_id,
+      u.user_psd,
+      u.user_type,
+      u.user_status,
+      u.dept_id,
+      d.dept_name dept_name
+     FROM
+       dis_user u LEFT JOIN dis_org o on u.org_id = o.BANKCODE
+                  LEFT JOIN dis_dept d on u.dept_id = d.id
+     where u.org_id = = #{org_id}
+  </select>
+  -->
+  
+  <select id="selectUser" resultType="com.chinaBank.bean.SysSeting.UserData">
+     SELECT
+      u.id,
+      u.user_id,
+      u.user_name,
+      u.org_id,
+      o.BANK org_name,
+      u.role_id,
+      u.user_psd,
+      u.user_type,
+      u.user_status,
+      u.dept_id,
+      d.dept_name dept_name,
+      r.role_name
+     FROM
+       dis_user u LEFT JOIN dis_org o on u.org_id = o.BANKCODE
+                  LEFT JOIN dis_dept d on u.dept_id = d.id
+                  left join dis_role r on r.role_id = u.role_id
+	where u.user_id != 'developer'
+       <if test="user_id != null and  user_id != ''">
+          and  u.user_id = #{user_id}
+       </if>
+       <if test="user_name != null and  user_name != ''">
+          and u.user_name like CONCAT('%',#{user_name},'%')
+       </if>
+        <if test="org_id != null and  org_id != ''">
+          and  o.BANK like CONCAT('%',#{org_name},'%')
+        </if>
+        <if test="user_status != null and  user_status != ''">
+          and  u.user_status = #{user_status}
+        </if>
+        <if test="role_id != null and  role_id != ''">
+          and  u.role_id = #{role_id}
+        </if>
+        <if test="dept_id != null and  dept_id != ''">
+          and  u.dept_id = #{dept_id}
+        </if>
+  </select>
+  <!-- 用户信息维护end -->
+    
+    <!-- 机构信息维护start 查询所有的机构信息 -->
+  <select id="selectAllOrg" resultType="com.chinaBank.bean.SysSeting.OrgData">
+       SELECT
+		  	IFNULL(BANK_ID,'') BANK_ID,
+			IFNULL(BANKCODE,'') BANKCODE,
+			IFNULL(BANK,'') BANK,
+			IFNULL(BANKTYPE,'')BANKTYPE ,
+			IFNULL(SUPERIORBANKCODE,'') SUPERIORBANKCODE,
+			IFNULL(AREA,'') AREA,
+			IFNULL(BELONGPBC,'') BELONGPBC,
+			IFNULL(ADDRESS,'') ADDRESS,
+			IFNULL(AREACODE,'') AREACODE,
+			IFNULL(CONTACTPERSON,'') CONTACTPERSON,
+			IFNULL(CONTACPHONE,'') CONTACPHONE,
+			IFNULL(BANKNAME,'') BANKNAME,
+			IFNULL(BANKCATEGORY,'') BANKCATEGORY
+      FROM
+       dis_org
+      <trim prefix="where" prefixOverrides="and |or ">
+       <if test="BANK_ID != null and  BANK_ID != ''">
+          and  BANK_ID = #{BANK_ID}
+       </if>
+       <if test="BANKCODE != null and  BANKCODE != ''">
+        and BANKCODE = #{BANKCODE}
+       </if>
+       	<if test="BANK != null and  BANK != ''">
+        and BANK like CONCAT('%',#{BANK},'%')
+        </if>
+        <if test="BANKTYPE != null and  BANKTYPE != ''">
+        and BANKTYPE = #{BANKTYPE}
+        </if>
+        <if test="SUPERIORBANKCODE != null and  SUPERIORBANKCODE != ''">
+        and SUPERIORBANKCODE = #{SUPERIORBANKCODE}
+        </if>
+        <if test="AREA != null and  AREA != ''">
+        and AREA like CONCAT('%',#{AREA},'%')
+        </if>
+        <if test="BELONGPBC != null and  BELONGPBC != ''">
+        and BELONGPBC = #{BELONGPBC}
+        </if>
+        <if test="ADDRESS != null and  ADDRESS != ''">
+        and ADDRESS = #{ADDRESS}
+        </if>
+        <if test="AREACODE != null and  AREACODE != ''">
+        and AREACODE = #{AREACODE}
+        </if>
+        <if test="CONTACTPERSON != null and  CONTACTPERSON != ''">
+        and CONTACTPERSON = #{CONTACTPERSON}
+        </if>
+        <if test="CONTACPHONE != null and  CONTACPHONE != ''">
+        and CONTACPHONE = #{CONTACPHONE}
+        </if>
+        <if test="BANKNAME != null and  BANKNAME != ''">
+        and BANKNAME = #{BANKNAME}
+        </if>
+        <if test="BANKCATEGORY != null and  BANKCATEGORY != ''">
+        and BANKCATEGORY = #{BANKCATEGORY}
+        </if>
+     </trim>    
+  </select>
+  
+    <insert id="insetIntoOrg" parameterType="com.chinaBank.bean.SysSeting.OrgData">
+       insert into dis_org(
+			  	BANK_ID,
+				BANKCODE,
+				BANK,
+				BANKTYPE,
+				SUPERIORBANKCODE,
+				AREA,
+				BELONGPBC,
+				ADDRESS,
+				AREACODE,
+				CONTACTPERSON,
+				CONTACPHONE,
+				BANKNAME,
+				BANKCATEGORY
+			)
+			values(
+			  	uuid(),
+				#{BANKCODE},
+				#{BANK},
+				#{BANKTYPE},
+				#{SUPERIORBANKCODE},
+				#{AREA},
+				#{BELONGPBC},
+				#{ADDRESS},
+				#{AREACODE},
+				#{CONTACTPERSON},
+				#{CONTACPHONE},
+				#{BANKNAME},
+				#{BANKCATEGORY}
+			)  
+  </insert>
+  
+     <!-- 机构信息维护end --> 
+     
+    <!-- 查询所有的下属机构 --> 
+  <select id="selectOrgById" resultType="com.chinaBank.bean.SysSeting.OrgData" parameterType="String">
+       SELECT
+		  	BANK_ID,
+			BANKCODE,
+			BANK,
+			BANKTYPE,
+			SUPERIORBANKCODE,
+			AREA,
+			BELONGPBC,
+			ADDRESS,
+			AREACODE,
+			CONTACTPERSON,
+			CONTACPHONE,
+			BANKNAME,
+			BANKCATEGORY
+      FROM
+       dis_org
+ where BELONGPBC = #{org_id}
+  </select>
+  
+    <insert id="test" parameterType="Map">
+    INSERT INTO dis_test
+      (id
+      )
+      values
+      (
+      #{id}
+      )
+  </insert>
+  
+  <insert id="test_deno" parameterType="String">
+    INSERT INTO dis_test_demo
+      (id,
+      name
+      )
+      values
+      (
+      #{id},
+      #{name}
+      )
+  </insert>
+  
+  <delete id="update_test_deno" parameterType="String">
+    update dis_test_demo
+    set name = 'F'
+    where id = #{id}
+  </delete>
+  
+      <!-- 查询所有的下属机构 --> 
+  <select id="selectBankType" resultType="String">
+      SELECT
+		BANKTYPE
+      FROM
+       dis_org
+       where BANKTYPE != ''
+       and BANKTYPE is not null
+     group by BANKTYPE
+  </select>
+  
+  <insert id="addDictType" parameterType="Map">
+    INSERT INTO dis_excel_dict_type
+      (id,
+      dict_type,
+      dict_type_value,
+      status,
+      create_user,
+      create_date,
+      update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      #{dict_type},
+      #{dict_type_value},
+      #{status},
+      #{create_user},
+      now(),
+      '',
+      now()
+      )
+  </insert>
+  
+  <update id="updateDictType" parameterType="Map">
+    update dis_excel_dict_type
+    set  update_user = #{update_user},
+         dict_type = #{dict_type},
+         dict_type_value = #{dict_type_value},
+         status = #{status},
+         update_date = now()
+     where id = #{id}
+  </update>
+
+   <select id="selectDictType" resultType="com.chinaBank.bean.SysSeting.DictData" parameterType="Map">
+       SELECT
+		  id,
+	      dict_type,
+	      dict_type_value,
+	      status,
+	      create_user,
+	      create_date,
+	      update_user,
+	      update_date
+      FROM
+       dis_excel_dict_type
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="dict_type != null and  dict_type != ''">
+          and dict_type = #{dict_type}
+        </if>
+        <if test="dict_type_value != null and  dict_type_value != ''">
+          and dict_type_value like CONCAT('%',#{dict_type_value},'%')
+        </if>
+        <if test="status != null and  status != ''">
+          and status = #{status}
+        </if>
+	</trim>
+		order by create_date desc
+  </select>
+  
+  <select id="selectDictTypeOrderBy" resultType="com.chinaBank.bean.SysSeting.DictData" parameterType="Map">
+       SELECT
+		  id,
+	      dict_type,
+	      dict_type_value,
+	      status,
+	      create_user,
+	      create_date,
+	      update_user,
+	      update_date
+      FROM
+       dis_excel_dict_type
+       where  status = 'Y'
+        <if test="dict_type != null and  dict_type != ''">
+          and dict_type = #{dict_type}
+        </if>
+        <if test="dict_type_value != null and  dict_type_value != ''">
+          and dict_type_value like CONCAT('%',#{dict_type_value},'%')
+        </if>
+		union
+		       SELECT
+		  id,
+	      dict_type,
+	      dict_type_value,
+	      status,
+	      create_user,
+	      create_date,
+	      update_user,
+	      update_date
+      FROM
+       dis_excel_dict_type
+       where  status = 'N'
+        <if test="dict_type != null and  dict_type != ''">
+          and dict_type = #{dict_type}
+        </if>
+        <if test="dict_type_value != null and  dict_type_value != ''">
+          and dict_type_value like CONCAT('%',#{dict_type_value},'%')
+        </if>
+  </select>
+  
+     <select id="selectDictTypeById" resultType="com.chinaBank.bean.SysSeting.DictData" parameterType="Map">
+       SELECT
+		  id,
+	      dict_type,
+	      dict_type_value,
+	      status,
+	      create_user,
+	      create_date,
+	      update_user,
+	      update_date
+      FROM
+       dis_excel_dict_type
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="id != null and  id != ''">
+          and id = #{id}
+        </if>
+	</trim> 
+  </select>
+  
+  <select id="selectDictTypeByType" resultType="java.lang.Integer" parameterType="Map">	
+             select count(1) 
+             from dis_excel_dict_type
+       <trim prefix="where" prefixOverrides="and |or ">
+	        <if test="dict_type != null and  dict_type != ''">
+	           dict_type = #{dict_type}
+	        </if>
+	        <if test="dict_type_value != null and  dict_type_value != ''">
+	           dict_type_value = #{dict_type_value}
+	        </if>
+       </trim>
+   </select>
+   
+   <insert id="addDictTypeValue" parameterType="Map">
+    INSERT INTO dis_excel_dict_value
+      (id,
+      dict_type_id,
+      dict_id,
+      dict_value,
+      create_user,
+      create_date,
+      update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      #{dict_type_id},
+      #{dict_id},
+      #{dict_value},
+      #{create_user},
+      now(),
+      '',
+      now()
+      )
+  </insert>
+  
+   <update id="updateDictTypeValue" parameterType="Map">
+    update dis_excel_dict_value 
+    set  dict_id = #{dict_id},
+         dict_value = #{dict_value},
+         update_date = now(),
+         update_user = #{update_user}
+     where id = #{id}
+  </update>
+  
+     <select id="selectDictTypeValue" resultType="com.chinaBank.bean.SysSeting.DictData" parameterType="Map">
+       SELECT
+	       id,
+	      dict_type_id,
+	      dict_id,
+	      dict_value,
+	      create_user,
+	      create_date,
+	      update_user,
+	      update_date
+      FROM
+       dis_excel_dict_value
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="dict_id != null and  dict_id != ''">
+          and dict_id = #{dict_id}
+        </if>
+        <if test="dict_value != null and  dict_value != ''">
+          and dict_value like CONCAT('%',#{dict_value},'%')
+        </if>
+        <if test="dict_type_id != null and  dict_type_id != ''">
+          and dict_type_id = #{dict_type_id}
+        </if>
+	</trim> 
+	order by create_date desc
+  </select>
+  
+   <select id="selectDictTypeValueById" resultType="com.chinaBank.bean.SysSeting.DictData" parameterType="String">
+       SELECT
+	       id,
+	      dict_type_id,
+	      dict_id,
+	      dict_value,
+	      create_user,
+	      create_date,
+	      update_user,
+	      update_date
+      FROM
+       dis_excel_dict_value
+    where id = #{id}
+  </select>
+  
+    <select id="selectDictTypeValueByTypeId" resultType="java.lang.Integer">	
+             select count(1) from dis_excel_dict_value 
+             where dict_id = #{dict_id} and dict_type_id = #{dict_type_id}
+   </select>
+   
+     <delete id="deleteDictTypeValueById" parameterType="String">
+    delete from 
+      dis_excel_dict_value
+      where id = #{id}
+  </delete>
+  
+  <select id="selectDictValue" resultType="String" parameterType="String">
+       SELECT
+	    dict_id
+      FROM
+       dis_excel_dict_value
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="dict_type_id != null and  dict_type_id != ''">
+          and dict_type_id = #{dict_type_id}
+        </if>
+	</trim> 
+   </select>
+   
+    <insert id="insertHolidayDate" parameterType="Map">
+    INSERT INTO dis_holiday_info
+      (id,
+      holiday_date,
+      work_type,
+      create_user,
+      create_date,
+      update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      str_to_date(#{holiday_date}, '%Y-%m-%d'),
+      #{work_type},
+      #{user},
+      now(),
+      '',
+      now()
+      )
+  </insert>
+  
+    <select id="selecttHolidayDate" resultType="com.chinaBank.bean.SysSeting.HolidayData">
+       SELECT
+	    *
+      FROM
+       dis_holiday_info
+   </select>
+   
+    <delete id="deletetHolidayDate" parameterType="String">
+      delete
+      FROM
+       dis_holiday_info
+      where holiday_date = str_to_date(#{holiday_date}, '%Y-%m-%d')
+   </delete>
+   
+   <select id="selecttHolidayDateByDate" resultType="com.chinaBank.bean.SysSeting.HolidayData" parameterType="Map">
+       SELECT
+	    *
+      FROM
+       dis_holiday_info
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="holiday_date != null and  holiday_date != ''">
+          and date_format(holiday_date, '%Y-%m-%d') = #{holiday_date}
+        </if>
+        <if test="work_type != null and  work_type != ''">
+          and work_type = #{work_type}
+        </if>
+	</trim> 
+   </select>
+   
+ <insert id="insertRole" parameterType="com.chinaBank.bean.SysSeting.RoleData">
+    INSERT INTO dis_role
+      (role_id,
+      role_name,
+      role_desc,
+      role_status,
+      create_user,
+      create_date,
+      update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      #{role_name},
+      #{role_desc},
+      #{role_status},
+      #{create_user},
+      now(),
+      #{create_user},
+      now()
+      )
+  </insert>
+  
+  <update id="updateRole" parameterType="com.chinaBank.bean.SysSeting.RoleData">
+    update
+      dis_role
+  set update_user = #{update_user},
+      role_name = #{role_name},
+      role_desc = #{role_desc},
+      role_status = #{role_status},
+      update_date = now()
+      where role_id = #{role_id}
+  </update>
+
+  <delete id="deleteRole" parameterType="String">
+    delete from 
+      dis_role
+      where role_id = #{role_id}
+  </delete>
+  
+  <select id="selectRoleByName" resultType="com.chinaBank.bean.SysSeting.RoleData" parameterType="String">
+      SELECT
+       role_id,
+       role_name,
+       role_desc,
+       role_status
+      FROM
+       dis_role 
+     where role_name = #{roleName}
+  </select>
+  
+    <select id="selectRoleById" resultType="com.chinaBank.bean.SysSeting.RoleData" parameterType="String">
+      SELECT
+       role_id,
+       role_name,
+       role_desc,
+       role_status
+      FROM
+       dis_role 
+     where role_id = #{role_id}
+  </select>
+  
+  <select id="findRoleTotal" resultType="com.chinaBank.bean.SysSeting.RoleData">
+      SELECT
+       role_id,
+       role_name,
+       role_desc,
+       role_status
+      FROM
+       dis_role
+       where role_status = 'Y'
+         and create_user != 'developer'
+  </select>
+  
+  <select id="selectRole" resultType="com.chinaBank.bean.SysSeting.RoleData" parameterType="com.chinaBank.bean.SysSeting.RoleData">
+     SELECT
+	   role_id,
+       role_name,
+       role_desc,
+       role_status
+      FROM
+       dis_role
+       where create_user != 'developer'
+        <if test="role_name != null and  role_name != ''">
+          and role_name like CONCAT('%',#{role_name},'%')
+        </if>
+        <if test="role_desc != null and  role_desc != ''">
+          and role_desc = #{role_desc}
+        </if>
+        <if test="role_status != null and  role_status != ''">
+          and role_status = #{role_status}
+        </if>
+   </select>
+   
+   <insert id="insertRoleAndMenuShip" parameterType="Map">
+    INSERT INTO dis_menu_ship
+      (id,
+      role_id,
+      menu_id,
+      role_status,
+      create_user,
+      create_date,
+      update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      #{role_id},
+      #{menu_id},
+      'Y',
+      #{user},
+      now(),
+      #{user},
+      now()
+      )
+  </insert>
+  
+  <select id="selectMenu" resultType="com.chinaBank.bean.SysSeting.RoleData" parameterType="String">
+      SELECT
+       m.menu_id,
+       m.prev_id,
+       m.id,
+       m.menu_name
+      FROM
+       dis_menu_ship s left JOIN dis_menu m
+       on s.menu_id = m.menu_id
+       where s.role_id = #{role_id}
+       and s.role_status = 'Y'
+  </select>
+  
+    <update id="updateMenu" parameterType="Map">
+    update
+      dis_menu_ship
+  set 
+      update_user = #{user},
+      role_status = 'N',
+      update_date = now()
+      where role_id = #{role_id}
+  </update>
+  
+  <delete id="deleteDictTypeFor" parameterType="String">
+    delete from 
+      dis_excel_dict_type
+      where id = #{dict_type_id}
+  </delete>
+
+  <delete id="deleteDictTypeValueByTypeId" parameterType="String">
+    delete from 
+      dis_excel_dict_value
+      where dict_type_id = #{dict_type_id}
+  </delete>
+  
+</mapper>

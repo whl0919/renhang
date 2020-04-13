@@ -1,0 +1,16 @@
+2019-10-17 16:00:14.308 [main] INFO  com.winterchen.SpringBootStart - Starting SpringBootStart on DESKTOP-NQ54PRN with PID 13524 (F:\renhang\workspace\CHINA-BANK-1.1.0\target\classes started by newWindows in F:\renhang\workspace\CHINA-BANK-1.1.0)
+2019-10-17 16:00:14.310 [main] INFO  com.winterchen.SpringBootStart - No active profile set, falling back to default profiles: default
+2019-10-17 16:00:15.930 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2019-10-17 16:00:15.948 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2019-10-17 16:00:15.961 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2019-10-17 16:00:15.962 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.24]
+2019-10-17 16:00:16.209 [main] INFO  org.apache.jasper.servlet.TldScanner - At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2019-10-17 16:00:16.213 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2019-10-17 16:00:16.213 [main] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 1855 ms
+2019-10-17 16:00:16.344 [main] INFO  c.a.d.s.b.a.DruidDataSourceAutoConfigure - Init DruidDataSource
+2019-10-17 16:00:16.641 [main] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} inited
+2019-10-17 16:00:17.004 [main] INFO  o.s.scheduling.concurrent.ThreadPoolTaskExecutor - Initializing ExecutorService 'applicationTaskExecutor'
+2019-10-17 16:00:17.094 [main] INFO  o.s.b.a.web.servlet.WelcomePageHandlerMapping - Adding welcome page template: index
+2019-10-17 16:00:17.325 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2019-10-17 16:00:17.359 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2019-10-17 16:00:17.362 [main] INFO  com.winterchen.SpringBootStart - Started SpringBootStart in 3.623 seconds (JVM running for 4.048)

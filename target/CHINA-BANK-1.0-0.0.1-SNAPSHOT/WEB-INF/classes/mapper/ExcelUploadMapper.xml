@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinaBank.mapper.ExcelUploadMapper" >
+
+   <select id="selectCountCols" resultType="com.chinaBank.bean.ExcelUpload.UploadErrorData">	
+             ${_parameter}
+   </select>
+   
+   <delete id="updateTable" parameterType="Map">	
+             ${_parameter}
+   </delete>
+   
+  <!--  <delete id="deleteUploadErrorInfo" parameterType="Map">	
+         delete from  dis_upload_error_info
+     <trim prefix="where" prefixOverrides="and |or ">
+        <if test="batch != null and  batch != ''">
+          and batch = #{batch}
+        </if>
+        <if test="check_type != null and  check_type != ''">
+          and check_type = #{check_type}
+        </if>
+	</trim> 
+   </delete> -->
+   
+  <update id="updateUploadErrorInfo" parameterType="Map">
+    update
+      dis_upload_error_info
+  set reason = #{reason}
+      where id = #{id}
+  </update>
+  
+  <update id="updateUploadErrorInfoByBatch" parameterType="String">
+    update
+      dis_upload_error_info
+  set status = 'N'
+      where batch = #{batch}
+  </update>
+   
+  <insert id="addUploadErrorInfo" parameterType="map">
+    INSERT INTO dis_upload_error_info
+      (id,
+      file_name,
+      check_type,
+      rule_id,
+      err_Info,
+      user,
+      batch,
+      ROWNUM,
+      sheet_name,
+      status,
+      org,
+      zq,
+      create_date
+      )
+      values
+      (uuid(),
+      #{file_name},
+      #{check_type},
+      #{rule_id},
+      #{err_Info},
+      #{user},
+      #{batch},
+      #{ROWNUM},
+      #{sheet_name},
+      #{status},
+      #{org},
+      #{zq},
+      now()
+      )
+  </insert>
+  
+  <select id="findAllUploadErrorInfo" resultType="com.chinaBank.bean.ExcelUpload.UploadErrorData" parameterType="com.chinaBank.bean.ExcelUpload.UploadErrorData">
+      SELECT
+	      i.id,
+	      i.file_name,
+	      o.check_class check_class,
+	      i.err_Info,
+	      i.check_type,
+	      i.user,
+	      i.batch,
+	      i.reason,
+	      i.ROWNUM,
+	      i.sheet_name,
+	      i.status,
+	      i.org,
+	      i.create_date,
+	      i.zq
+      FROM
+       dis_upload_error_info i inner join dis_check_rules_info o 
+       on i.rule_id = o.id
+       where i.status = 'Y'
+        <if test="file_name != null and  file_name != ''">
+          and i.file_name = #{file_name}
+        </if>
+        <if test="sheet_name != null and  sheet_name != ''">
+          and i.sheet_name = #{sheet_name}
+        </if>
+        <if test="org != null and  org != ''">
+          and i.org = #{org}
+        </if>
+        <if test="user != null and  user != ''">
+          and i.user = #{user}
+        </if>
+        <if test="status != null and  status != ''">
+          and i.check_type = #{check_type}
+        </if>
+        <if test="batch != null and  batch != ''">
+          and i.batch = #{batch}
+        </if>
+        <if test="zq != null and  zq != ''">
+          and i.zq = #{zq}
+        </if>
+        <if test="rule_id != null and  rule_id != ''">
+          and i.rule_id = #{rule_id}
+        </if>
+        
+        union
+     SELECT
+	      i.id,
+	      i.file_name,
+	      p.check_class check_class,
+	      i.err_Info,
+	      i.check_type,
+	      i.user,
+	      i.batch,
+	      i.reason,
+	      i.ROWNUM,
+	      i.sheet_name,
+	      i.status,
+	      i.org,
+	      i.create_date,
+	      i.zq
+      FROM
+       dis_upload_error_info i inner join dis_check_rules_public_ship o 
+       on i.rule_id = o.id inner join dis_check_rules_public p
+       on p.id = o.public_id
+       where i.status = 'Y'
+        <if test="file_name != null and  file_name != ''">
+          and i.file_name = #{file_name}
+        </if>
+        <if test="sheet_name != null and  sheet_name != ''">
+          and i.sheet_name = #{sheet_name}
+        </if>
+        <if test="org != null and  org != ''">
+          and i.org = #{org}
+        </if>
+        <if test="user != null and  user != ''">
+          and i.user = #{user}
+        </if>
+        <if test="status != null and  status != ''">
+          and i.check_type = #{check_type}
+        </if>
+        <if test="batch != null and  batch != ''">
+          and i.batch = #{batch}
+        </if>
+        <if test="zq != null and  zq != ''">
+          and i.zq = #{zq}
+        </if>
+        <if test="rule_id != null and  rule_id != ''">
+          and i.rule_id = #{rule_id}
+        </if>
+  </select>
+  
+  <!--   <select id="selectUploadErrorInfoByFileName" resultType="com.chinaBank.bean.ExcelUpload.UploadErrorData" parameterType="Map">
+      SELECT
+	      i.id,
+	      i.file_name,
+	      o.check_class check_class,
+	      i.err_Info,
+	      i.check_type,
+	      i.user,
+	      i.batch,
+	      i.reason,
+	      i.ROWNUM,
+	      i.create_date
+      FROM
+       dis_upload_error_info i left join dis_check_rules_info o 
+       on i.rule_id = o.id
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="file_name != null and  file_name != ''">
+          and i.file_name = #{file_name}
+        </if>
+        <if test="user != null and  user != ''">
+          and i.user = #{user}
+        </if>
+	</trim> 
+  </select>--> 
+  <!--  
+  <insert id="adduploadFileInfo" parameterType="com.chinaBank.bean.ExcelUpload.UploadFileInfoData">
+    INSERT INTO dis_file_info
+      (id,
+      file_name,
+      status,
+      adress,
+      org,
+      batch,
+      check_type,
+      create_user,
+      create_date
+      )
+      values
+      (uuid(),
+      #{file_name},
+      #{status},
+      #{adress},
+      #{org},
+      #{batch},
+      'N',
+      #{create_user},
+      now()
+      )
+  </insert>
+  
+    <select id="selectUploadFileInfo" resultType="com.chinaBank.bean.ExcelUpload.UploadFileInfoData" parameterType="Map">
+      SELECT
+		     id,
+	      file_name,
+	      status,
+	      adress,
+	      org,
+	      create_user,
+	      create_date
+      FROM
+       dis_file_info 
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="file_name != null and  file_name != ''">
+          and file_name = #{file_name}
+        </if>
+        <if test="user != null and  user != ''">
+          and create_user = #{user}
+        </if>
+        <if test="status != null and  status != ''">
+          and status = #{status}
+        </if>
+	</trim> 
+  </select>
+  
+  <select id="findAllUploadFileInfo" resultType="com.chinaBank.bean.ExcelUpload.UploadFileInfoData" parameterType="Map">
+      SELECT
+		     id,
+	      file_name,
+	      status,
+	      adress,
+	      org,
+	      create_user,
+	      create_date,
+	      check_type,
+	      remark
+      FROM
+       dis_file_info 
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="file_name != null and  file_name != ''">
+          and file_name = #{file_name}
+        </if>
+        <if test="user != null and  user != ''">
+          and create_user = #{user}
+        </if>
+        <if test="status != null and  status != ''">
+          and status = #{status}
+        </if>
+	</trim> 
+  </select>
+  
+    <select id="selectUploadFileInfoForCheck" resultType="com.chinaBank.bean.ExcelUpload.UploadFileInfoData" parameterType="com.chinaBank.bean.ExcelUpload.UploadFileInfoData">
+      SELECT
+		     id,
+	      file_name,
+	      status,
+	      adress,
+	      org,
+	      create_user,
+	      create_date,
+	      check_type,
+	      remark
+      FROM
+       dis_file_info 
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="file_name != null and  file_name != ''">
+          and file_name = #{file_name}
+        </if>
+        <if test="user != null and  user != ''">
+          and create_user = #{user}
+        </if>
+        <if test="orgs != null and  orgs != ''">
+          and org in ${orgs}  
+        </if>
+        <if test="status != null and  status != ''">
+          and status = #{status}
+        </if>
+        <if test="check_type != null and  check_type != ''">
+          and check_type = #{check_type}
+        </if>
+	</trim> 
+  </select>
+  
+  <update id="updateUploadFileInfo" parameterType="Map">
+    update
+      dis_file_info
+  set check_type = #{check_type},
+      remark = #{remark}
+      where id = #{id}
+  </update>
+  -->
+  	<!--    <foreach collection="listData" index="index" item="item"  separator="," >
+	   	        #{item}
+	    </foreach>  -->
+	    
+  <insert id="insertListData" parameterType="Map">
+	    ${col}
+	   <foreach item="slaveId" collection="listData" separator=","> 
+	         ${slaveId}
+	    </foreach>
+
+  </insert>
+  
+  <select id="selectUploadErrorInfoByBatch" resultType="com.chinaBank.bean.ExcelUpload.UploadErrorData" parameterType="String">
+      SELECT
+	      rule_id,
+	      err_Info,
+	      batch id,
+	      sheet_name
+      FROM
+       dis_upload_error_info
+    where batch = #{reportId}
+	GROUP BY rule_id,err_Info,batch,sheet_name
+  </select>
+  
+  <insert id="addUploadErrorData" parameterType="map">
+    INSERT INTO dis_upload_error
+      (id,
+      ruleId,
+      errInfo,
+      reason,
+      reportId,
+      createDate,
+      upUser
+      )
+      values
+      (uuid(),
+      #{ruleId},
+      #{errInfo},
+      #{reason},
+      #{reportId},
+      now(),
+      #{upUser}
+      )
+  </insert>
+  
+  <select id="selectUploadErrorDataByBatch" resultType="String" parameterType="map">
+      SELECT
+	      reason
+      FROM
+       dis_upload_error
+    where reportId = #{reportId}
+    and ruleId = #{ruleId}
+  </select>
+
+</mapper>

@@ -1,0 +1,994 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinaBank.mapper.ExcelTaskMapper" >
+
+  <insert id="addExcelTask" parameterType="com.chinaBank.bean.ExcelTask.ExcelTaskData">
+    INSERT INTO dis_excel_task
+      (
+		id,
+		file_name, 
+		dept_id,
+		adress,
+		report_cycle_type,
+		report_cycle,
+		report_cycle_class,
+		report_days,
+		report_date,
+		status,
+		create_user,
+		create_date,
+		update_user,
+		update_date,
+		report_cycle_last_day,
+		batch,
+		model_id,
+		sys_date
+      )
+      values
+      (
+        uuid(),
+     	#{file_name}, 
+		#{dept_id},
+		#{adress},
+		#{report_cycle_type},
+		#{report_cycle},
+		#{report_cycle_class},
+		#{report_days},		
+		#{report_date},
+		#{status},
+		#{create_user},
+		str_to_date(#{create_date}, '%Y-%m-%d'),
+		'',
+		str_to_date(#{create_date}, '%Y-%m-%d'),
+		#{report_cycle_last_day},
+		#{batch},
+		#{model_id},
+		now()
+      )
+  </insert>
+  
+  <update id="updateExcelTask" parameterType="com.chinaBank.bean.ExcelTask.ExcelTaskData">
+    update
+      dis_excel_task
+  set 	file_name = #{file_name},
+		dept_id = #{dept_id},
+		<if test="adress != null and  adress != ''">
+       		adress = #{adress},
+        </if>
+		report_cycle_type = #{report_cycle_type},
+		report_cycle = #{report_cycle},
+		report_cycle_class = #{report_cycle_class},
+		report_days = #{report_days},
+		report_date = #{report_date},
+		status = #{status},
+		create_user = #{create_user},
+		update_user = #{update_user},
+		create_date = str_to_date(#{create_date}, '%Y-%m-%d'),
+		update_date = str_to_date(#{update_date}, '%Y-%m-%d'),
+		report_cycle_last_day = #{report_cycle_last_day},
+		model_id = #{model_id}
+      where batch = #{batch}
+  </update>
+
+  <update id="deleteExcelTask" parameterType="String">
+    update
+      dis_excel_task
+  set 	status = 'F'
+      where id = #{id}
+  </update>
+  
+  <update id="deleteExcelTaskByBatch" parameterType="Map">
+    update
+      dis_excel_task
+  set 	status = #{status}
+      where batch = #{batch}
+  </update>
+  
+  <select id="selectExcelTaskById" resultType="com.chinaBank.bean.ExcelTask.ExcelTaskData" parameterType="String">
+      SELECT
+       		id,
+		file_name, 
+		dept_id,
+		adress,
+		report_cycle_type,
+		report_cycle,
+		report_cycle_class,
+		report_days,
+		report_date,
+		status,
+		create_user,
+		create_date,
+		update_user,
+		update_date,
+		report_cycle_last_day,
+		model_id
+      FROM
+       dis_excel_task 
+     where id = #{id}
+  </select>
+  
+  <select id="selectExcelTaskByModelOrOrg" resultType="com.chinaBank.bean.ExcelTask.ExcelTaskData" parameterType="Map">
+      SELECT
+        id,
+		file_name, 
+		dept_id,
+		adress,
+		report_cycle_type,
+		report_cycle,
+		report_cycle_class,
+		report_days,
+		report_date,
+		status,
+		create_user,
+		create_date,
+		update_user,
+		update_date,
+		report_cycle_last_day,
+		model_id
+      FROM
+       dis_excel_task 
+     where file_name = #{file_name}
+        <if test="report_cycle != null and  report_cycle != ''">
+          and report_cycle = #{report_cycle}
+        </if>
+        <if test="report_date != null and  report_date != ''">
+          and report_date = #{report_date}
+        </if>
+     and status = #{status}
+  </select>
+  
+  <select id="selectExcelTask" resultType="com.chinaBank.bean.ExcelTask.ExcelTaskData" parameterType="com.chinaBank.bean.ExcelTask.ExcelTaskData">
+       SELECT
+		p.dept_name,
+		t.batch,
+		t.file_name, 
+		t.dept_id,
+		t.status,
+		t.create_user,
+		date_format(t.create_date, '%Y-%m-%d') create_date,
+		t.update_user,
+		date_format(t.update_date, '%Y-%m-%d') update_date,
+		t.report_cycle_type,
+		GROUP_CONCAT(t.report_date) report_date,
+		t.adress,
+		t.report_days,
+		t.report_cycle,
+		t.report_cycle_class,
+		t.model_id,
+		m.excel_model_name model_name
+      FROM
+       dis_excel_task t left join dis_dept p on t.dept_id = p.id
+       left join dis_excel_model m on m.id = t.model_id
+       where t.status != 'F'
+       <if test="file_name != null and  file_name != ''">
+         and t.file_name like CONCAT('%',#{file_name},'%')
+       </if>
+       <if test="dept_id != null and  dept_id != ''">
+         and t.dept_id = #{dept_id}
+       </if>
+       <if test="status != null and  status != ''">
+         and t.status = #{status}
+       </if>
+       <if test="report_cycle_type != null and  report_cycle_type != ''">
+         and t.report_cycle_type = #{report_cycle_type}
+       </if>
+       group by t.file_name,t.dept_id,p.dept_name,
+                t.status,t.report_cycle_type,t.batch,
+                t.create_user,t.create_date,t.update_user,
+                t.adress,t.update_date,t.report_days,
+                t.report_cycle,t.report_cycle_class,
+                t.model_id,m.excel_model_name
+                order by t.create_date desc
+  </select>
+
+  <insert id="addExcelTaskOrg" parameterType="com.chinaBank.bean.ExcelTask.ExcelTaskOrgData">
+    INSERT INTO dis_excel_task_org
+      (
+		id,
+		org,
+		create_user,
+		create_date,
+		batch,
+		status
+      )
+      values
+      (
+        uuid(),
+     	#{org}, 
+		#{create_user},
+		now(),
+		#{batch},
+		'Y'
+      )
+  </insert>
+  
+    <select id="selectExcelTaskOrgByBatch" resultType="String" parameterType="String">
+    select 
+	    org
+     from 
+    dis_excel_task_org
+    where batch = #{batch}
+    and status = 'Y'
+  </select>
+  
+  <update id="updateExcelTaskOrg"  parameterType="String">
+    update
+	    dis_excel_task_org
+	    set status = 'N'
+	    where batch = #{batch}
+  </update>
+
+    <select id="selectExcelTaskReportOrg" resultType="com.chinaBank.bean.ExcelTask.ExcelTaskReportOrgData" parameterType="com.chinaBank.bean.ExcelTask.ExcelTaskReportOrgData">
+       SELECT
+        t.report_date startDate,
+        t.report_cycle_last_day endDate,
+        t.report_cycle_type reportType,
+        t.file_name fileName, 
+		p.dept_name deptName,
+        t.adress adress,
+        t.report_cycle reportCycle,
+        o.org,
+        t.batch,
+        t.model_id,
+        m.excel_model_name model_name,
+        t.report_cycle_class
+      FROM  
+       dis_excel_task_org o left join dis_excel_task t on o.batch = t.batch
+       left join dis_dept p on t.dept_id = p.id left join dis_excel_model m 
+       on t.model_id = m.id
+       where t.status = 'Y'
+       and o.org = #{org}
+       <if test="fileName != null and  fileName != ''">
+         and t.file_name like CONCAT('%',#{fileName},'%')
+       </if>
+       <if test="deptId != null and  deptId != ''">
+         and t.dept_id = #{deptId}
+       </if>
+       <if test="reportType != null and  reportType != ''">
+         and t.report_cycle_type = #{reportType}
+       </if>
+	 group by t.report_date,
+	        t.report_cycle_last_day,
+	        t.report_cycle_type,
+	        t.file_name, 
+			p.dept_name,
+	        t.adress,
+	        t.report_cycle,
+	        o.org,
+	        t.batch,
+	        t.model_id,
+	        m.excel_model_name
+  </select>
+  
+  <select id="selectExcelTaskOrgs" resultType="String">
+       select org from dis_excel_task_org group by org
+  </select>
+  
+  <insert id="addExcelTaskReportOrg" parameterType="com.chinaBank.bean.ExcelTask.ExcelTaskReportOrgData">
+      insert into dis_excel_task_upload
+      (
+        id,
+      	startDate,
+		endDate,
+		reportType,
+		fileName,
+		deptName,
+		adress,
+		path,
+		status,
+		upType,
+		org,
+		reportCycle,
+		paymentDay,
+		batch,
+		create_date
+      )
+      values
+      (
+	      uuid(),
+		 #{startDate},
+		 #{endDate},
+		 #{reportType},
+		 #{fileName},
+		 #{deptName},
+		 #{adress},
+		 '',
+		 'U',
+		 'U',
+		 #{org},
+		 #{reportCycle},
+		 #{paymentDay},
+		 #{batch},
+		 #{create_date}
+       )
+  </insert>
+  
+  <select id="selectExcelTaskReport" resultType="com.chinaBank.bean.ExcelTask.ExcelTaskReportOrgData" parameterType="Map">
+      SELECT
+        id,
+      	startDate,
+		endDate,
+		reportType,
+		fileName,
+		deptName,
+		adress,
+		path,
+		status,
+		org,
+		reportCycle
+      FROM
+       dis_excel_task_upload 
+     where fileName = #{file_name}
+          and org = #{org}
+        <if test="report_cycle != null and  report_cycle != ''">
+          and reportCycle = #{report_cycle}
+        </if>
+        <if test="report_date != null and  report_date != ''">
+          and startDate = #{report_date}
+        </if>
+        <if test="date != null and  date != ''">
+          and paymentDay = #{date}
+        </if>
+  </select>
+  
+  <select id="selectExcelTaskReportByOrg" resultType="com.chinaBank.bean.ExcelTask.ExcelTaskReportOrgData" parameterType="Map">
+      SELECT
+        d.id,
+      	d.startDate,
+		d.endDate,
+		d.reportType,
+		d.fileName,
+		d.deptName,
+		d.adress,
+		d.path,
+		d.status,
+		d.org,
+		o.BANK orgName,
+		d.reportCycle,
+        d.paymentDay  paymentDay,
+		t.model_id,
+		d.create_date,
+        m.excel_model_name model_name,
+        d.upUser,
+        d.remark,
+        d.batch,
+        d.upType
+      FROM
+       dis_excel_task_upload d left join dis_excel_task t 
+       on d.batch = t.batch
+       left join dis_excel_model m 
+       on m.id = t.model_id
+       left join dis_org o
+       on o.BANKCODE = d.org      
+     where t.status = 'Y'
+       and d.startDate = t.report_date
+     <if test="org != null and  org != ''">
+          and d.org = #{org}
+     </if>
+     <if test="fileName != null and  fileName != ''">
+          and d.fileName like CONCAT('%',#{fileName},'%')
+     </if>
+     <if test="status != null and  status != ''">
+          and d.status ${status}
+     </if>
+     <if test="batch != null and  batch != ''">
+          and d.batch = #{batch}
+     </if>
+     <if test="paymentDay != null and  paymentDay != ''">
+          and date_format(d.create_date, '%Y-%m') = #{paymentDay}
+     </if>
+     <if test="paymentDayTJ != null and  paymentDayTJ != ''">
+          and d.paymentDay = #{paymentDayTJ}
+     </if>
+  </select>
+    
+  <select id="selectExcelTaskReportByCount" resultType="com.chinaBank.bean.ExcelTask.ExcelTaskReportOrgData" parameterType="Map">  
+		SELECT  
+		    SUM(a.countY) countY,
+		    SUM(a.countN) countN,
+		    count(a.org) count,
+				a.fileName,
+				a.paymentDay,
+				a.reportType,
+				a.reportCycle,
+				a.startDate,
+				a.endDate,
+				a.model_name,
+				a.model_id,
+				a.batch,
+				a.adress
+		 from (	  		
+		SELECT
+						count(1) countY,
+						0 countN,
+						d.fileName fileName,
+						d.paymentDay paymentDay,
+						d.reportType reportType,
+						d.reportCycle reportCycle,
+						d.startDate startDate,
+						d.endDate endDate,
+						m.excel_model_name model_name,
+						t.model_id model_id,
+						d.batch batch,
+						d.adress adress,
+						d.org
+					FROM
+						dis_excel_task_upload d
+					LEFT JOIN dis_excel_task t ON d.batch = t.batch
+					LEFT JOIN dis_excel_model m ON m.id = t.model_id
+					WHERE
+						t. STATUS = 'Y'
+					AND d. STATUS = 'Y'
+					AND d.startDate = t.report_date
+					     <if test="batch != null and  batch != ''">
+					          and d.batch = #{batch}
+					     </if>
+					     <if test="paymentDay != null and  paymentDay != ''">
+					          and date_format(d.create_date, '%Y-%m') = #{paymentDay}
+					     </if>
+					GROUP BY
+						d.fileName,
+						d.paymentDay,
+						d.reportType,
+						d.reportCycle,
+						d.startDate,
+						d.endDate,
+						m.excel_model_name,
+						t.model_id,
+						d.batch,
+						d.adress,
+						d.org
+			       UNION
+				SELECT
+				    0 countY,
+					count(1) countN,
+					d.fileName fileName,
+					d.paymentDay paymentDay,
+					d.reportType reportType,
+					d.reportCycle reportCycle,
+					d.startDate startDate,
+					d.endDate endDate,
+					m.excel_model_name model_name,
+					t.model_id model_id,
+					d.batch batch,
+					d.adress adress,
+					d.org
+				FROM
+					dis_excel_task_upload d
+				LEFT JOIN dis_excel_task t ON d.batch = t.batch
+				LEFT JOIN dis_excel_model m ON m.id = t.model_id
+				WHERE
+					t. STATUS = 'Y'
+				AND d. STATUS in ('F','Z')
+				AND d.startDate = t.report_date
+					 <if test="batch != null and  batch != ''">
+					          and d.batch = #{batch}
+				     </if>
+				     <if test="paymentDay != null and  paymentDay != ''">
+				          and date_format(d.create_date, '%Y-%m') = #{paymentDay}
+				     </if>
+				GROUP BY
+					d.fileName,
+					d.paymentDay,
+					d.reportType,
+					d.reportCycle,
+					d.startDate,
+					d.endDate,
+					m.excel_model_name,
+					t.model_id,
+					d.batch,
+					d.adress,
+					d.org
+			union				
+			      SELECT
+				    0 countY,
+					0 countN,
+					d.fileName fileName,
+					d.paymentDay paymentDay,
+					d.reportType reportType,
+					d.reportCycle reportCycle,
+					d.startDate startDate,
+					d.endDate endDate,
+					m.excel_model_name model_name,
+					t.model_id model_id,
+					d.batch batch,
+					d.adress adress,
+					d.org
+				FROM
+					dis_excel_task_upload d
+				LEFT JOIN dis_excel_task t ON d.batch = t.batch
+				LEFT JOIN dis_excel_model m ON m.id = t.model_id
+				WHERE
+					t. STATUS = 'Y'
+				AND d. STATUS not in ('F','Z','Y')
+				AND d.startDate = t.report_date
+					 <if test="batch != null and  batch != ''">
+					          and d.batch = #{batch}
+				     </if>
+				     <if test="paymentDay != null and  paymentDay != ''">
+				          and date_format(d.create_date, '%Y-%m') = #{paymentDay}
+				     </if>
+				GROUP BY
+					d.fileName,
+					d.paymentDay,
+					d.reportType,
+					d.reportCycle,
+					d.startDate,
+					d.endDate,
+					m.excel_model_name,
+					t.model_id,
+					d.batch,
+					d.adress,
+					d.org
+					)a
+		GROUP BY
+				a.fileName,
+				a.paymentDay,
+				a.reportType,
+				a.reportCycle,
+				a.startDate,
+				a.endDate,
+				a.model_name,
+				a.model_id,
+				a.batch,
+				a.adress
+  </select>
+  
+    <update id="updateExcelTaskReportByOrg" parameterType="Map">
+	    update
+	      dis_excel_task_upload
+	  set 	path = #{path},
+	       <if test="upUser != null and  upUser != ''">
+	           upUser = #{upUser},
+	       </if>
+			status = #{status},
+			upType = #{status}
+			where id = #{id}
+	</update>
+	
+	<select id="selectExcelTaskReportById" resultType="com.chinaBank.bean.ExcelTask.ExcelTaskReportOrgData" parameterType="Map">
+	      SELECT
+	        d.id,
+	      	d.startDate,
+			d.endDate,
+			d.reportType,
+			d.fileName,
+			d.deptName,
+			d.adress,
+			d.path,
+			d.status,
+			d.org,
+			d.reportCycle
+	      FROM
+	       dis_excel_task_upload d 
+	     where d.id = #{id}
+	     and d.status in ${status}
+  </select>
+  
+    <select id="selectExcelTaskCheckOrgByBatch" resultType="com.chinaBank.bean.SysSeting.OrgData">
+       SELECT
+		  	o.BANK_ID,
+			o.BANKCODE,
+			o.BANK,
+			o.BANKTYPE,
+			o.SUPERIORBANKCODE,
+			o.AREA,
+			o.BELONGPBC,
+			o.ADDRESS,
+			o.AREACODE,
+			o.CONTACTPERSON,
+			o.CONTACPHONE,
+			o.BANKNAME,
+			o.BANKCATEGORY
+      FROM
+       dis_org o where EXISTS (
+      SELECT (1) from dis_excel_task t left join dis_excel_task_org r on t.batch = r.batch
+		where t.batch = #{batch}
+		and t.status = 'Y'
+		and r.status = 'Y'
+		and o.BANKCODE = r.org
+	) 
+      <if test="BANK_ID != null and  BANK_ID != ''">
+         and  o.BANK_ID = #{BANK_ID}
+      </if>
+      <if test="BANKCODE != null and  BANKCODE != ''">
+       and o.BANKCODE = #{BANKCODE}
+      </if>
+      	<if test="BANK != null and  BANK != ''">
+       and o.BANK like CONCAT('%',#{BANK},'%')
+       </if>
+       <if test="BANKTYPE != null and  BANKTYPE != ''">
+       and o.BANKTYPE = #{BANKTYPE}
+       </if>
+       <if test="SUPERIORBANKCODE != null and  SUPERIORBANKCODE != ''">
+       and o.SUPERIORBANKCODE = #{SUPERIORBANKCODE}
+       </if>
+       <if test="AREA != null and  AREA != ''">
+       and o.AREA like CONCAT('%',#{AREA},'%')
+       </if>
+       <if test="BELONGPBC != null and  BELONGPBC != ''">
+       and o.BELONGPBC = #{BELONGPBC}
+       </if>
+       <if test="ADDRESS != null and  ADDRESS != ''">
+       and o.ADDRESS = #{ADDRESS}
+       </if>
+       <if test="AREACODE != null and  AREACODE != ''">
+       and o.AREACODE = #{AREACODE}
+       </if>
+       <if test="CONTACTPERSON != null and  CONTACTPERSON != ''">
+       and o.CONTACTPERSON = #{CONTACTPERSON}
+       </if>
+       <if test="CONTACPHONE != null and  CONTACPHONE != ''">
+       and o.CONTACPHONE = #{CONTACPHONE}
+       </if>
+       <if test="BANKNAME != null and  BANKNAME != ''">
+       and o.BANKNAME = #{BANKNAME}
+       </if>
+       <if test="BANKCATEGORY != null and  BANKCATEGORY != ''">
+       and o.BANKCATEGORY = #{BANKCATEGORY}
+       </if>
+       union
+       SELECT
+		  	o.BANK_ID,
+			o.BANKCODE,
+			o.BANK,
+			o.BANKTYPE,
+			o.SUPERIORBANKCODE,
+			o.AREA,
+			o.BELONGPBC,
+			o.ADDRESS,
+			o.AREACODE,
+			o.CONTACTPERSON,
+			o.CONTACPHONE,
+			o.BANKNAME,
+			o.BANKCATEGORY
+      FROM
+       dis_org o where not EXISTS (
+      SELECT (1) from dis_excel_task t left join dis_excel_task_org r on t.batch = r.batch
+	where t.batch = #{batch}
+	and t.status = 'Y'
+	and r.status = 'Y'
+	and o.BANKCODE = r.org
+	) 
+      <if test="BANK_ID != null and  BANK_ID != ''">
+         and  o.BANK_ID = #{BANK_ID}
+      </if>
+      <if test="BANKCODE != null and  BANKCODE != ''">
+       and o.BANKCODE = #{BANKCODE}
+      </if>
+      	<if test="BANK != null and  BANK != ''">
+       and o.BANK like CONCAT('%',#{BANK},'%')
+       </if>
+       <if test="BANKTYPE != null and  BANKTYPE != ''">
+       and o.BANKTYPE = #{BANKTYPE}
+       </if>
+       <if test="SUPERIORBANKCODE != null and  SUPERIORBANKCODE != ''">
+       and o.SUPERIORBANKCODE = #{SUPERIORBANKCODE}
+       </if>
+       <if test="AREA != null and  AREA != ''">
+       and o.AREA like CONCAT('%',#{AREA},'%')
+       </if>
+       <if test="BELONGPBC != null and  BELONGPBC != ''">
+       and o.BELONGPBC = #{BELONGPBC}
+       </if>
+       <if test="ADDRESS != null and  ADDRESS != ''">
+       and o.ADDRESS = #{ADDRESS}
+       </if>
+       <if test="AREACODE != null and  AREACODE != ''">
+       and o.AREACODE = #{AREACODE}
+       </if>
+       <if test="CONTACTPERSON != null and  CONTACTPERSON != ''">
+       and o.CONTACTPERSON = #{CONTACTPERSON}
+       </if>
+       <if test="CONTACPHONE != null and  CONTACPHONE != ''">
+       and o.CONTACPHONE = #{CONTACPHONE}
+       </if>
+       <if test="BANKNAME != null and  BANKNAME != ''">
+       and o.BANKNAME = #{BANKNAME}
+       </if>
+       <if test="BANKCATEGORY != null and  BANKCATEGORY != ''">
+       and o.BANKCATEGORY = #{BANKCATEGORY}
+       </if>
+     </select>
+     
+    <update id="updateExcelTaskReportRemark" parameterType="Map">
+	    update
+	      dis_excel_task_upload
+	  set 	status = #{status},
+			remark = #{remark}
+			where id = #{id}
+	</update>
+	
+	<update id="updateExcelTaskReportByTask" parameterType="Map">
+	    update
+	      dis_excel_task_upload
+		<trim prefix="SET" suffixOverrides=",">
+		     <if test="adress != null and  adress != ''">
+		          adress = #{adress},
+		     </if>
+		     <if test="startDate != null and  startDate != ''">
+		          startDate = #{startDate},
+		     </if>
+	    </trim>
+			where batch = #{batch}
+	</update>
+	
+	<insert id="addExcelNotice" parameterType="com.chinaBank.bean.ExcelTask.ExcelNoticeData">
+	    INSERT INTO dis_excel_notice
+	      (
+			id,
+			user, 
+			title,
+			text,
+	        path,
+			status,
+			read_type,
+			create_user,
+			create_date,
+			update_user,
+			update_date
+	      )
+	      values
+	      (
+	        uuid(),
+	     	#{user}, 
+			#{title},
+			#{text},
+	        #{path},
+			'Y',
+			'N',
+	        #{user},
+	        now(),
+	        '',
+	        now()
+	      )
+  </insert>
+  
+  <insert id="addExcelOrgNotice" parameterType="com.chinaBank.bean.ExcelTask.ExcelNoticeData">
+	    INSERT INTO dis_excel_notice_org
+	      (
+			id,
+			org, 
+			notice_id,
+			status,
+			create_user,
+			create_date
+	      )
+	      values
+	      (
+	        uuid(),
+	     	#{org}, 
+			#{notice_id},
+			'Y',
+			#{user},
+	        now()
+	      )
+  </insert>
+  
+  	<select id="selectExcelNotice" resultType="com.chinaBank.bean.ExcelTask.ExcelNoticeData" parameterType="Map">
+	      SELECT
+			id,
+			user, 
+			title,
+			text,
+			path,
+			status,
+			create_user,
+			create_date,
+			update_user,
+			update_date
+	      FROM
+	       dis_excel_notice n
+	    <trim prefix="where" prefixOverrides="and |or ">
+	        <if test="title != null and  title != ''">
+	          and n.title like CONCAT('%',#{title},'%')
+	        </if>
+	        <if test="status != null and  status != ''">
+	          and n.status = #{status}
+	        </if>
+		</trim>
+		order by create_date desc
+  </select>
+  
+  <select id="selectExcelNoticeByOrg" resultType="com.chinaBank.bean.ExcelTask.ExcelNoticeData" parameterType="Map">
+	      SELECT
+	        n.id,
+			n.title,
+			n.text,
+			n.path,
+			n.read_type,
+			n.create_date
+	      FROM
+	       dis_excel_notice_org o left join dis_excel_notice n
+	       on o.notice_id = n.id
+	  <trim prefix="where" prefixOverrides="and |or ">
+	        <if test="title != null and  title != ''">
+	          and n.title like CONCAT('%',#{title},'%')
+	        </if>
+	        <if test="org != null and  org != ''">
+	          and o.org = #{org}
+	        </if>
+      </trim>   
+      order by n.create_date desc
+  </select>
+  
+  <update id="updateExcelNotice" parameterType="com.chinaBank.bean.ExcelTask.ExcelNoticeData">
+	    update
+	      dis_excel_notice
+	  set 	
+		update_date = now(),
+	     <if test="title != null and  title != ''">
+	         title = #{title},
+	     </if>
+	     <if test="text != null and  text != ''">
+	          text = #{text},
+	     </if>
+	     <if test="path != null and  path != ''">
+	          path = #{path},
+	     </if>
+	     <if test="status != null and  status != ''">
+	          status = #{status},
+	     </if>
+	     <if test="read_type != null and  read_type != ''">
+	          read_type = #{read_type},
+	     </if>
+	     update_user = #{update_user}
+		where id = #{id}
+	</update>
+  
+  <delete id="deleteExcelNotice" parameterType="String">
+    delete from
+      dis_excel_notice
+      where id = #{id}
+  </delete>
+  
+    <update id="updateExcelOrgNotice" parameterType="String">
+	    update
+	      dis_excel_notice_org
+	  set	
+		status = 'N'
+		where notice_id = #{notice_id}
+	</update>
+	
+	  <select id="selectExcelNoticeByNoticeId" resultType="String" parameterType="String">
+	      SELECT
+             org
+	      FROM
+	       dis_excel_notice_org
+          where notice_id = #{notice_id}
+          and status = 'Y'
+  </select>
+  
+      <select id="selectExcelNoticeOrgByNoticeId" resultType="com.chinaBank.bean.SysSeting.OrgData">
+       SELECT
+		  	o.BANK_ID,
+			o.BANKCODE,
+			o.BANK,
+			o.BANKTYPE,
+			o.SUPERIORBANKCODE,
+			o.AREA,
+			o.BELONGPBC,
+			o.ADDRESS,
+			o.AREACODE,
+			o.CONTACTPERSON,
+			o.CONTACPHONE,
+			o.BANKNAME,
+			o.BANKCATEGORY
+      FROM
+       dis_org o where EXISTS (
+      SELECT (1) from dis_excel_notice t left join dis_excel_notice_org r on t.id = r.notice_id
+		where t.id = #{notice_id}
+		and t.status = 'Y'
+		and r.status = 'Y'
+		and o.BANKCODE = r.org
+	) 
+      <if test="BANK_ID != null and  BANK_ID != ''">
+         and  o.BANK_ID = #{BANK_ID}
+      </if>
+      <if test="BANKCODE != null and  BANKCODE != ''">
+       and o.BANKCODE = #{BANKCODE}
+      </if>
+      	<if test="BANK != null and  BANK != ''">
+       and o.BANK like CONCAT('%',#{BANK},'%')
+       </if>
+       <if test="BANKTYPE != null and  BANKTYPE != ''">
+       and o.BANKTYPE = #{BANKTYPE}
+       </if>
+       <if test="SUPERIORBANKCODE != null and  SUPERIORBANKCODE != ''">
+       and o.SUPERIORBANKCODE = #{SUPERIORBANKCODE}
+       </if>
+       <if test="AREA != null and  AREA != ''">
+       and o.AREA like CONCAT('%',#{AREA},'%')
+       </if>
+       <if test="BELONGPBC != null and  BELONGPBC != ''">
+       and o.BELONGPBC = #{BELONGPBC}
+       </if>
+       <if test="ADDRESS != null and  ADDRESS != ''">
+       and o.ADDRESS = #{ADDRESS}
+       </if>
+       <if test="AREACODE != null and  AREACODE != ''">
+       and o.AREACODE = #{AREACODE}
+       </if>
+       <if test="CONTACTPERSON != null and  CONTACTPERSON != ''">
+       and o.CONTACTPERSON = #{CONTACTPERSON}
+       </if>
+       <if test="CONTACPHONE != null and  CONTACPHONE != ''">
+       and o.CONTACPHONE = #{CONTACPHONE}
+       </if>
+       <if test="BANKNAME != null and  BANKNAME != ''">
+       and o.BANKNAME = #{BANKNAME}
+       </if>
+       <if test="BANKCATEGORY != null and  BANKCATEGORY != ''">
+       and o.BANKCATEGORY = #{BANKCATEGORY}
+       </if>
+       union
+       SELECT
+		  	o.BANK_ID,
+			o.BANKCODE,
+			o.BANK,
+			o.BANKTYPE,
+			o.SUPERIORBANKCODE,
+			o.AREA,
+			o.BELONGPBC,
+			o.ADDRESS,
+			o.AREACODE,
+			o.CONTACTPERSON,
+			o.CONTACPHONE,
+			o.BANKNAME,
+			o.BANKCATEGORY
+      FROM
+       dis_org o where not EXISTS (
+      SELECT (1) from dis_excel_notice t left join dis_excel_notice_org r on t.id = r.notice_id
+		where t.id = #{notice_id}
+		and t.status = 'Y'
+		and r.status = 'Y'
+		and o.BANKCODE = r.org
+	) 
+      <if test="BANK_ID != null and  BANK_ID != ''">
+         and  o.BANK_ID = #{BANK_ID}
+      </if>
+      <if test="BANKCODE != null and  BANKCODE != ''">
+       and o.BANKCODE = #{BANKCODE}
+      </if>
+      	<if test="BANK != null and  BANK != ''">
+       and o.BANK like CONCAT('%',#{BANK},'%')
+       </if>
+       <if test="BANKTYPE != null and  BANKTYPE != ''">
+       and o.BANKTYPE = #{BANKTYPE}
+       </if>
+       <if test="SUPERIORBANKCODE != null and  SUPERIORBANKCODE != ''">
+       and o.SUPERIORBANKCODE = #{SUPERIORBANKCODE}
+       </if>
+       <if test="AREA != null and  AREA != ''">
+       and o.AREA like CONCAT('%',#{AREA},'%')
+       </if>
+       <if test="BELONGPBC != null and  BELONGPBC != ''">
+       and o.BELONGPBC = #{BELONGPBC}
+       </if>
+       <if test="ADDRESS != null and  ADDRESS != ''">
+       and o.ADDRESS = #{ADDRESS}
+       </if>
+       <if test="AREACODE != null and  AREACODE != ''">
+       and o.AREACODE = #{AREACODE}
+       </if>
+       <if test="CONTACTPERSON != null and  CONTACTPERSON != ''">
+       and o.CONTACTPERSON = #{CONTACTPERSON}
+       </if>
+       <if test="CONTACPHONE != null and  CONTACPHONE != ''">
+       and o.CONTACPHONE = #{CONTACPHONE}
+       </if>
+       <if test="BANKNAME != null and  BANKNAME != ''">
+       and o.BANKNAME = #{BANKNAME}
+       </if>
+       <if test="BANKCATEGORY != null and  BANKCATEGORY != ''">
+       and o.BANKCATEGORY = #{BANKCATEGORY}
+       </if>
+     </select>
+     
+     <update id="batchAuditUpload" parameterType="Map">
+	    update
+	      dis_excel_task_upload
+	  set 	status = #{status}
+			where id = #{id}
+	</update>
+</mapper>

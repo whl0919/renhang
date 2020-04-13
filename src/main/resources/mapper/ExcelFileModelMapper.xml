@@ -1,0 +1,940 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinaBank.mapper.ExcelFileModelMapper" >
+  
+  <!-- 模板维护start -->
+  <insert id="addExcelModel" parameterType="map">
+    INSERT INTO dis_excel_model
+      (id,
+      excel_model_name,
+      model_status,
+      create_user,
+	  create_date,
+	  update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      #{excel_model_name},
+      #{model_status},
+      #{create_user},
+      now(),
+      '',
+      now()
+      )
+  </insert>
+  
+  <update id="updateExcelModel" parameterType="map">
+    update
+      dis_excel_model
+   set
+       excel_model_name = #{excel_model_name},
+       model_status = #{model_status},
+       update_user = #{update_user},
+       update_date = now()
+      where id = #{id}
+  </update>
+
+  <delete id="deleteExcelModel" parameterType="String">
+    delete from 
+      dis_excel_model
+      where id = #{id}
+  </delete>
+  
+  <select id="selectExcelModelById" resultType="com.chinaBank.bean.ExcelFileModel.ExcelModelData" parameterType="String">
+      SELECT
+       id,
+      excel_model_name,
+      model_status
+      FROM
+       dis_excel_model 
+  	   <trim prefix="where" prefixOverrides="and |or ">
+	        <if test="id != null and  id != ''">
+	          and id = #{id}
+	        </if>
+		</trim>
+  </select>
+  
+  <select id="selectExcelModelAll" resultType="com.chinaBank.bean.ExcelFileModel.ExcelModelData">
+      SELECT
+       id,
+      excel_model_name,
+      model_status
+      FROM
+       dis_excel_model 
+  </select>
+  
+  <select id="selectExcelModelByName" resultType="com.chinaBank.bean.ExcelFileModel.ExcelModelData" parameterType="String">
+      SELECT
+       id,
+      excel_model_name,
+      model_status,
+      create_user,
+      create_date
+      FROM
+       dis_excel_model 
+	   <trim prefix="where" prefixOverrides="and |or ">
+	        <if test="excel_model_name != null and  excel_model_name != ''">
+	          and excel_model_name like CONCAT('%',#{excel_model_name},'%')
+	        </if>
+		</trim>
+	 order by create_date desc
+  </select>
+  
+    <select id="selectExcelModelByModelName" resultType="com.chinaBank.bean.ExcelFileModel.ExcelModelData" parameterType="String">
+      SELECT
+       id,
+      excel_model_name,
+      model_status
+      FROM
+       dis_excel_model 
+	   <trim prefix="where" prefixOverrides="and |or ">
+	        <if test="excel_model_name != null and  excel_model_name != ''">
+	          and excel_model_name = #{excel_model_name}
+	        </if>
+		</trim>
+  </select>
+  <!-- 模板维护end -->
+  
+    <insert id="addBaseTabInfo" parameterType="com.chinaBank.bean.ExcelFileModel.ExcelBaseTabData">
+    INSERT INTO dis_base_tab_info
+      (id,
+      table_name,
+      table_desc,
+      read_row,
+      status,
+      model_id,
+      sheet_name,
+      create_user,
+	  create_date,
+	  update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      #{table_name},
+      #{table_desc},
+      #{read_row},
+      #{status},
+      #{model_id},
+      #{sheet_name},
+      #{create_user},
+      now(),
+      '',
+      now()
+      )
+  </insert>
+  
+  <update id="updateBaseTabInfo" parameterType="com.chinaBank.bean.ExcelFileModel.ExcelBaseTabData">
+    update
+      dis_base_tab_info
+  set table_name = #{table_name},
+      table_desc = #{table_desc},
+      read_row = #{read_row},
+      status = #{status},
+      sheet_name = #{sheet_name},
+      update_user = #{update_user},
+      update_date = now()
+      where id = #{id}
+  </update>
+
+  <delete id="deleteBaseTabInfo" parameterType="String">
+    delete from 
+      dis_base_tab_info
+      where id = #{id}
+  </delete>
+  
+  <select id="selectBaseTabInfoByTableName" resultType="com.chinaBank.bean.ExcelFileModel.ExcelBaseTabData" parameterType="String">
+      SELECT
+        id,
+      table_name,
+      table_desc,
+      read_row,
+      status,
+      model_id,
+      sheet_name,
+      create_user,
+	  create_date,
+	  update_user,
+      update_date
+      FROM
+       dis_base_tab_info 
+     where table_name = #{table_name}
+  </select>
+  
+  <select id="selectBaseTabInfoById" resultType="com.chinaBank.bean.ExcelFileModel.ExcelBaseTabData" parameterType="String">
+      SELECT
+        id,
+      table_name,
+      table_desc,
+      read_row,
+      status,
+      model_id,
+      sheet_name,
+      create_user,
+	  create_date,
+	  update_user,
+      update_date
+      FROM
+       dis_base_tab_info 
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="id != null and  id != ''">
+          and id = #{id}
+        </if>
+	</trim> 
+  </select>
+  
+  <select id="selectBaseTabInfo" resultType="com.chinaBank.bean.ExcelFileModel.ExcelBaseTabData">
+      SELECT
+	      t.id,
+	      t.table_name,
+	      t.table_desc,
+	      t.read_row,
+	      t.status,
+	      t.model_id,
+	      t.sheet_name,
+	      t.create_user,
+		  t.create_date,
+		  t.update_user,
+	      t.update_date,
+          case d.script_type 
+	        WHEN 'Y' THEN d.script_type
+			ELSE 'N' END script_type
+      FROM
+       dis_base_tab_info t left join dis_script_info d on d.table_name = t.table_name
+	   <trim prefix="where" prefixOverrides="and |or ">
+	        <if test="table_name != null and  table_name != ''">
+	          and t.table_name = #{table_name}
+	        </if>
+	        <if test="table_desc != null and  table_desc != ''">
+	          and t.table_desc = #{table_desc}
+	        </if>
+	        <if test="status != null and status != ''">
+	          and t.status = #{status}
+	        </if>
+	        <if test="model_id != null and model_id != ''">
+	          and t.model_id = #{model_id}
+	        </if>
+		</trim>
+  </select>
+  
+   <insert id="addBasecolumnInfo" parameterType="com.chinaBank.bean.ExcelFileModel.ExcelBaseColData">
+    INSERT INTO dis_base_column_info
+      (id,
+      column_name,
+      column_desc,
+      read_col,
+      column_type,
+      column_length,
+      column_Decimal,
+      index_type,
+	  table_id,
+	  isNull,
+      create_user,
+	  create_date,
+	  update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      #{column_name},
+      #{column_desc},
+      #{read_col},
+      #{column_type},
+      #{column_length},
+      #{column_Decimal},
+      #{index_type},
+      #{table_id},
+      #{isNull},
+      #{create_user},
+      now(),
+      '',
+      now()
+      )
+  </insert>
+  
+  <update id="updateBasecolumnInfo" parameterType="com.chinaBank.bean.ExcelFileModel.ExcelBaseColData">
+    update
+      dis_base_column_info
+  set column_name = #{column_name},
+      column_desc = #{column_desc},
+      read_col = #{read_col},
+      column_type = #{column_type},
+      column_length = #{column_length},   
+      index_type = #{index_type},
+      column_Decimal = #{column_Decimal},
+      isNull = #{isNull},
+      update_user = #{update_user},
+      update_date = now()
+      where id = #{id}
+  </update>
+
+  <delete id="deleteBasecolumnInfo" parameterType="String">
+    delete from 
+      dis_base_column_info
+      where id = #{id}
+  </delete>
+  
+  <select id="selectBasecolumnInfoByName" resultType="com.chinaBank.bean.ExcelFileModel.ExcelBaseColData" parameterType="Map">
+      SELECT
+	      id,
+	      column_name,
+	      column_desc,
+	      read_col,
+	      column_type,
+	      column_length,
+	      column_Decimal,
+	      index_type,
+		  table_id,
+		  isNull
+      FROM
+       dis_base_column_info 
+    <trim prefix="where" prefixOverrides="and |or ">
+        <if test="table_id != null and  table_id != ''">
+          and table_id = #{table_id}
+        </if>
+         <if test="column_name != null and  column_name != ''">
+          and column_name = #{column_name}
+        </if>
+	</trim> 
+  </select>
+  
+    <select id="selectBasecolumnInfoByColumnName" resultType="com.chinaBank.bean.ExcelFileModel.ExcelBaseColData" parameterType="Map">
+      SELECT
+	      id,
+	      column_name,
+	      column_desc,
+	      read_col,
+	      column_type,
+	      column_length,
+	      column_Decimal,
+	      index_type,
+		  table_id,
+		  isNull
+      FROM
+       dis_base_column_info 
+    <trim prefix="where" prefixOverrides="and |or ">
+        <if test="tableId != null and  tableId != ''">
+          and table_id = #{tableId}
+        </if>
+         <if test="colUmnName != null and  colUmnName != ''">
+          and column_name = #{colUmnName}
+        </if>
+	</trim> 
+  </select>
+  
+  <select id="selectBasecolumnInfoById" resultType="com.chinaBank.bean.ExcelFileModel.ExcelBaseColData" parameterType="String">
+      SELECT
+	      id,
+	      column_name,
+	      column_desc,
+	      read_col,
+	      column_type,
+	      column_length,
+	      column_Decimal,
+	      index_type,
+		  table_id,
+		  isNull
+      FROM
+       dis_base_column_info 
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="id != null and  id != ''">
+          and id = #{id}
+        </if>
+	</trim> 
+  </select>
+  
+  <select id="findAllBasecolumnInfo" resultType="com.chinaBank.bean.ExcelFileModel.ExcelBaseColData" parameterType="String">
+      SELECT
+	      i.id,
+	      i.column_name,
+	      i.column_desc,
+	      i.read_col,
+	      i.column_type,
+	      i.column_length,
+	      i.column_Decimal,
+	      i.index_type,
+		  i.table_id,
+		  i.isNull,
+		  d.table_name
+      FROM
+       dis_base_column_info i left join dis_base_tab_info d on i.table_id = d.id
+       where i.table_id= #{table_id}
+  </select>
+  
+  
+    <!-- 脚本信息表维护start -->
+  <insert id="addScriptInfo" parameterType="map">
+    INSERT INTO dis_script_info
+      (id,
+      table_name,
+      table_desc,
+      script_information,
+	  script_type,
+	  create_user,
+      create_date
+      )
+      values
+      (uuid(),
+      #{table_name},
+      #{table_desc},
+      #{script_information},
+      #{script_type},
+      #{create_user},
+      now()
+      )
+  </insert>
+  
+        <!-- 生成表之前，通过表名查询列信息start -->
+  <select id="selectcolumnsInfoByTabId" resultType="com.chinaBank.bean.ExcelFileModel.ExcelBaseColData" parameterType="String">
+      SELECT
+          t.table_name table_name,
+	      t.table_desc table_desc,
+	      c.column_name column_name,
+	      c.column_desc,
+	      c.column_type,
+	      c.column_length,
+	      c.column_Decimal,
+	      c.index_type,
+	      c.isNull,
+	      c.read_col,
+	      c.id
+      FROM
+       dis_base_tab_info t left join dis_base_column_info c on t.id = c.table_id
+     where t.id= #{table_id}
+  </select>
+  
+  <insert id="addCheckRulesInfo" parameterType="com.chinaBank.bean.ExcelFileModel.ExcelCheckRuleData">
+    INSERT INTO dis_check_rules_info
+      (id,
+      check_type,
+      check_class,
+      check_program,
+      status,
+      check_rule,
+      error_info,
+      model_id,
+      table_id,
+      dict_type_id,
+      col,
+      check_desc,
+      create_user,
+	  create_date,
+	  update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      #{check_type},
+      #{check_class},
+      #{check_program},
+      #{status},
+      #{check_rule},
+      #{error_info},
+      #{model_id},
+      #{table_id},
+      #{dict_type_id},
+      #{col},
+      #{check_desc},
+      #{create_user},
+      now(),
+      '',
+      now()
+      )
+  </insert>
+  
+  <update id="updateCheckRulesInfo" parameterType="com.chinaBank.bean.ExcelFileModel.ExcelCheckRuleData">
+    update
+      dis_check_rules_info
+  set check_type = #{check_type},
+      check_class = #{check_class},
+      check_program = #{check_program},
+      status = #{status},
+      check_rule = #{check_rule},
+      error_info = #{error_info},
+      update_user = #{update_user},
+      check_desc = #{check_desc},
+      table_id = #{table_id},
+      dict_type_id = #{dict_type_id},
+      col = #{col}
+      where id = #{id}
+  </update>
+
+  <delete id="deleteCheckRulesInfo" parameterType="String">
+    delete from 
+      dis_check_rules_info
+      where id = #{id}
+  </delete>
+  
+  <select id="selectCheckRulesInfoById" resultType="com.chinaBank.bean.ExcelFileModel.ExcelCheckRuleData" parameterType="String">
+      SELECT
+	      i.id,
+	      i.check_type,
+	      i.check_class,
+	      i.check_program,
+	      i.status,
+	      i.check_rule,
+	      i.error_info,
+	      i.model_id,
+	      i.check_desc,
+	      i.table_id,
+	      d.table_name,
+	      'N' public_type,
+	      i.dict_type_id,
+          i.col
+      FROM
+      dis_check_rules_info i left join dis_base_tab_info d
+      on i.table_id = d.id
+     where i.id = #{id}
+      Union
+            SELECT
+	      i.id,
+	      p.check_type,
+	      p.check_class,
+	      p.check_program,
+	      p.status,
+	      CONCAT(i.col,' ',p.check_rule) check_rule,
+	      p.error_info,
+	      i.model_id,
+	      p.check_desc,
+	      i.table_id,
+	      d.table_name,
+	      'Y' public_type,
+	      p.dict_type_id,
+          p.col
+      FROM
+      dis_check_rules_public_ship i left join dis_base_tab_info d
+      on i.table_id = d.id left join dis_check_rules_public p
+      on i.public_id = p.id
+     where i.id = #{id}
+  </select>
+  
+  <select id="selectCheckRulesInfo" resultType="com.chinaBank.bean.ExcelFileModel.ExcelCheckRuleData" parameterType="com.chinaBank.bean.ExcelFileModel.ExcelCheckRuleData">
+      SELECT
+	      i.id,
+	      i.check_type,
+	      i.check_class,
+	      i.check_program,
+	      i.status,
+	      i.check_rule,
+	      i.error_info,
+	      i.model_id,
+	      i.check_desc,
+	      i.table_id,
+	      d.table_name,
+	      'N' public_type,
+	      i.dict_type_id,
+          i.col
+      FROM
+      dis_check_rules_info i left join dis_base_tab_info d
+      on i.table_id = d.id
+     where i.model_id = #{model_id}
+      <if test="table_name != null and  table_name != ''">
+              and d.table_name like CONCAT('%',#{table_name},'%')
+      </if> 
+      <if test="table_id != null and  table_id != ''">
+              and i.table_id = #{table_id}
+      </if> 
+            <if test="check_desc != null and  check_desc != ''">
+              and i.check_desc like CONCAT('%',#{check_desc},'%')
+      </if> 
+            <if test="check_class != null and  check_class != ''">
+              and i.check_class = #{check_class}
+      </if> 
+            <if test="status != null and  status != ''">
+              and i.status = #{status}
+      </if> 
+            <if test="public_type != null and  public_type != ''">
+              and i.public_type = #{public_type}
+      </if> 
+      Union
+            SELECT
+	      i.id,
+	      p.check_type,
+	      p.check_class,
+	      p.check_program,
+	      p.status,
+	      CONCAT(i.col,' ',p.check_rule) check_rule,
+	      p.error_info,
+	      i.model_id,
+	      p.check_desc,
+	      i.table_id,
+	      d.table_name,
+	      'Y' public_type,
+	      p.dict_type_id,
+          p.col
+      FROM
+      dis_check_rules_public_ship i left join dis_base_tab_info d
+      on i.table_id = d.id left join dis_check_rules_public p
+      on i.public_id = p.id
+     where i.model_id = #{model_id}
+      <if test="table_name != null and  table_name != ''">
+              and d.table_name like CONCAT('%',#{table_name},'%')
+      </if>
+      <if test="table_id != null and  table_id != ''">
+              and i.table_id = #{table_id}
+      </if> 
+            <if test="check_desc != null and  check_desc != ''">
+              and p.check_desc like CONCAT('%',#{check_desc},'%')
+      </if> 
+            <if test="check_class != null and  check_class != ''">
+              and p.check_class = #{check_class}
+      </if> 
+            <if test="status != null and  status != ''">
+              and p.status = #{status}
+      </if> 
+            <if test="public_type != null and  public_type != ''">
+              and p.public_type = #{public_type}
+      </if> 
+  </select>
+  
+  <select id="selectCheckRulesPubShipForId" resultType="String" parameterType="Map">
+            SELECT
+	      i.public_id
+      FROM
+      dis_check_rules_public_ship i
+     where i.model_id = #{model_id}
+      <if test="table_id != null and  table_id != ''">
+              and i.table_id = #{table_id}
+      </if> 
+      <if test="col != null and  col != ''">
+              and i.col = #{col}
+      </if> 
+  </select>
+  
+ <!--  
+ <insert id="addConfigFileInfo" parameterType="com.chinaBank.bean.ExcelFileModel.ExcelConfigFileData">
+    INSERT INTO dis_config_file_info
+      (id,
+      file_name,
+      status,
+      create_user,
+	  create_date,
+	  update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      #{file_name},
+      #{status},
+      #{create_user},
+      now(),
+      '',
+      now()
+      )
+  </insert>
+  
+  <update id="updateConfigFileInfo" parameterType="com.chinaBank.bean.ExcelFileModel.ExcelConfigFileData">
+    update
+      dis_config_file_info
+  set file_name = #{file_name},
+      status = #{status},
+      update_user = #{update_user},
+      update_date = now()
+      where id = #{id}
+  </update>
+
+  <delete id="deleteConfigFileInfo" parameterType="String">
+    delete from 
+      dis_config_file_info
+      where id = #{id}
+  </delete>
+  
+  <select id="selectConfigFileInfoById" resultType="com.chinaBank.bean.ExcelFileModel.ExcelConfigFileData" parameterType="String">
+      SELECT
+        id,
+      file_name,
+      status
+      FROM
+       dis_config_file_info
+      where id = #{id}
+  </select>
+  
+    <select id="selectConfigFileInfoByFileName" resultType="com.chinaBank.bean.ExcelFileModel.ExcelConfigFileData" parameterType="String">
+      SELECT
+        id,
+      file_name,
+      status
+      FROM
+       dis_config_file_info
+      where file_name = #{file_name}
+  </select>
+  
+  <select id="selectConfigFileInfo" resultType="com.chinaBank.bean.ExcelFileModel.ExcelConfigFileData">
+      SELECT
+        id,
+      file_name,
+      status
+      FROM
+      dis_config_file_info 
+   <trim prefix="where" prefixOverrides="and |or ">
+        <if test="file_name != null and  file_name != ''">
+          and file_name = #{file_name}
+        </if>
+         <if test="status != null and  status != ''">
+          and status = #{status}
+        </if>
+	</trim> 
+  </select>
+  
+   <insert id="addModelFileRelationship" parameterType="map">
+    INSERT INTO dis_model_file_relationship
+      (id,
+      file_id,
+      status,
+      model_id,
+      model_name,
+      create_user,
+	  create_date,
+	  update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      #{file_id},
+      #{status},
+      #{model_id},
+      #{model_name},
+      #{create_user},
+      now(),
+      '',
+      now()
+      )
+  </insert>
+  
+  <delete id="deleteModelFileRelationship" parameterType="Map">
+    delete from 
+      dis_model_file_relationship
+      where file_id = #{file_id}
+      and  model_id = #{model_id}
+  </delete>
+  
+  <select id="findModelFileRelationship" resultType="com.chinaBank.bean.ExcelFileModel.ExcelModelData" parameterType="Map">
+      SELECT
+      file_id file_id,
+      status model_status,
+      model_id id,
+      model_name excel_model_name
+      FROM
+       dis_model_file_relationship
+     <trim prefix="where" prefixOverrides="and |or ">
+        <if test="file_id != null and  file_id != ''">
+          and file_id = #{file_id}
+        </if>
+         <if test="model_id != null and  model_id != ''">
+          and model_id = #{model_id}
+        </if>
+	</trim> 
+  </select>-->
+  
+  <select id="findModelFileById" resultType="com.chinaBank.bean.ExcelFileModel.ExcelModelData" parameterType="Map">
+      SELECT
+      file_id file_id,
+      status model_status,
+      model_id id,
+      model_name excel_model_name
+      FROM
+       dis_model_file_relationship
+     <trim prefix="where" prefixOverrides="and |or ">
+        <if test="file_id != null and  file_id != ''">
+          and file_id = #{file_id}
+        </if>
+         <if test="model_id != null and  model_id != ''">
+          and model_id = #{model_id}
+        </if>
+	</trim> 
+  </select>
+  
+  
+   <update id="runSqlScript">	
+             ${_parameter}
+   </update>
+   
+   <select id="selectCount" resultType="java.lang.Integer">	
+             ${_parameter}
+   </select>
+   
+   <update id="updateScriptInfo" parameterType="com.chinaBank.bean.ExcelFileModel.ExcelScriptInfoData">
+	    update
+	      dis_script_info
+	   set
+	   	       table_name = #{table_name},
+	    <if test="script_type != null and  script_type != ''">
+	           script_type = #{script_type},
+	    </if>
+	           script_information = #{script_information}
+	      where id = #{id}
+  </update>
+  
+  <select id="selectScriptInfoByTableName" resultType="com.chinaBank.bean.ExcelFileModel.ExcelScriptInfoData" parameterType="Map">
+      SELECT
+	      id,
+	      table_name,
+	      table_desc,
+	      script_information,
+		  script_type,
+		  create_user,
+	      create_date
+	 FROM dis_script_info
+     <trim prefix="where" prefixOverrides="and |or ">
+        <if test="table_name != null and  table_name != ''">
+          and table_name = #{table_name}
+        </if>
+         <if test="script_type != null and  script_type != ''">
+          and script_type = #{script_type}
+        </if>
+	</trim> 
+  </select>
+  
+    <delete id="deleteScript" parameterType="String">
+    delete from 
+      dis_script_info
+      where table_name = #{table_name}
+  </delete>
+
+    <insert id="addCheckRulesPublic" parameterType="com.chinaBank.bean.ExcelFileModel.ExcelCheckRuleData">
+    INSERT INTO dis_check_rules_public
+      (id,
+      check_type,
+      check_class,
+      check_program,
+      status,
+      check_rule,
+      error_info,
+      check_desc,
+      dict_type_id,
+      col,
+      create_user,
+	  create_date,
+	  update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      #{check_type},
+      #{check_class},
+      #{check_program},
+      #{status},
+      #{check_rule},
+      #{error_info},
+      #{check_desc},
+      #{dict_type_id},
+      #{col},
+      #{create_user},
+      now(),
+      '',
+      now()
+      )
+  </insert>
+  
+  <update id="updateCheckRulesPublic" parameterType="com.chinaBank.bean.ExcelFileModel.ExcelCheckRuleData">
+    update
+      dis_check_rules_public
+  set check_type = #{check_type},
+      check_class = #{check_class},
+      check_program = #{check_program},
+      status = #{status},
+      check_rule = #{check_rule},
+      error_info = #{error_info},
+      update_user = #{update_user},
+      check_desc = #{check_desc},
+      dict_type_id = #{dict_type_id},
+      col = #{col}
+      where id = #{id}
+  </update>
+
+  <delete id="deleteCheckRulesPublic" parameterType="String">
+    delete from 
+      dis_check_rules_public
+      where id = #{id}
+  </delete>
+  
+  <select id="selectCheckRulesPublicById" resultType="com.chinaBank.bean.ExcelFileModel.ExcelCheckRuleData" parameterType="String">
+      SELECT
+	      id,
+	      check_type,
+	      check_class,
+	      check_program,
+	      status,
+	      check_rule,
+	      error_info,
+	      check_desc,
+	      dict_type_id,
+          col
+      FROM
+       dis_check_rules_public
+      where id = #{id}
+  </select>
+  
+  <select id="findAllCheckRulesPublic" resultType="com.chinaBank.bean.ExcelFileModel.ExcelCheckRuleData" parameterType="Map">
+      SELECT
+	      id,
+	      check_type,
+	      check_class,
+	      check_program,
+	      status,
+	      check_rule,
+	      error_info,
+	      check_desc,
+	      dict_type_id,
+          col
+      FROM
+      dis_check_rules_public
+   <trim prefix="where" prefixOverrides="and |or ">
+     <if test="check_desc != null and  check_desc != ''">
+           and check_desc like CONCAT('%',#{check_desc},'%')
+     </if>
+     <if test="check_class != null and  check_class != ''">
+           and check_class = #{check_class}
+     </if>
+     <if test="check_type != null and  check_type != ''">
+           and check_type = #{check_type}
+     </if>
+   </trim>
+  </select>
+  
+  <update id="createTable">	
+             ${_parameter}
+   </update>
+   
+   <insert id="addCheckRulesPublicShip" parameterType="Map">
+    INSERT INTO dis_check_rules_public_ship
+      (id,
+      table_id,
+      public_id,
+      model_id,
+      col,
+      create_user,
+	  create_date,
+	  update_user,
+      update_date
+      )
+      values
+      (uuid(),
+      #{table_id},
+      #{public_id},
+      #{model_id},
+      #{col},
+      #{create_user},
+      now(),
+      '',
+      now()
+      )
+  </insert>
+  
+    <delete id="deleteCheckRulesPublicByTab" parameterType="Map">
+    delete from 
+      dis_check_rules_public_ship
+      where model_id = #{model_id}
+      and table_id = #{table_id}
+      and col = #{col}
+  </delete>
+  
+      <delete id="deleteCheckRulesPubShip" parameterType="String">
+    delete from 
+      dis_check_rules_public_ship
+      where id = #{id}
+  </delete>
+  
+
+</mapper>
