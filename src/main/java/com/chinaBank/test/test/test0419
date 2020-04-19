@@ -1,0 +1,14 @@
+package com.chinaBank.test.test;
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+public class test0419 {
+
+	@Test
+	public void test() {
+		fail("Not yet implemented");
+		System.out.println("测试使用");
+	}
+
+}
