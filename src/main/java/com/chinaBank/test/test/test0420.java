@@ -7,7 +7,7 @@ public class test0420 {
 
 	@Test
 	public void test() {
-		fail("Not yet implemented");
+		System.out.println("哈哈哈哈哈");
 	}
 
 }
